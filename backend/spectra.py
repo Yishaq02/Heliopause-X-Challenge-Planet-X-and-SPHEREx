@@ -1,5 +1,5 @@
 import numpy as np
-from config import N_DETECTORES, N_CANALES
+from config import N_DETECTORES, N_CANALES, posicion, mjd_a_anio
 from fits_engine import cargar_objetivo, flujo_en
 
 
@@ -16,13 +16,23 @@ def _canales(wl, fl):
     return rejilla, np.interp(rejilla, wl, fl)
 
 
-def espectro(tid, ra, dec):
-    """102 valores: 6 detectores x 17 canales concatenados, ordenados por detector."""
+def espectro(tid, ra, dec, pmra=0.0, pmdec=0.0, epoch=2000.0):
+    """Espectro de un objetivo con FITS locales en data/<tid>/."""
+    return espectro_de_epocas(cargar_objetivo(tid), ra, dec, pmra, pmdec, epoch)
+
+
+def espectro_de_epocas(epocas, ra, dec, pmra=0.0, pmdec=0.0, epoch=2000.0):
+    """102 valores: 6 detectores x 17 canales concatenados, ordenados por detector.
+
+    La posicion se corrige por movimiento propio a la fecha de cada observacion.
+    """
+    t = {"ra": ra, "dec": dec, "pmra": pmra, "pmdec": pmdec, "epoch": epoch}
     por_det = {d: ([], []) for d in range(1, N_DETECTORES + 1)}
-    for e in cargar_objetivo(tid):
+    for e in epocas:
         if e["detector"] in por_det:
+            r, d = posicion(t, mjd_a_anio(e["mjd"]))
             por_det[e["detector"]][0].append(e["wavelength"])
-            por_det[e["detector"]][1].append(flujo_en(e, ra, dec))
+            por_det[e["detector"]][1].append(flujo_en(e, r, d))
     wls, fls = [], []
     for d in range(1, N_DETECTORES + 1):
         w, f = _canales(*por_det[d])

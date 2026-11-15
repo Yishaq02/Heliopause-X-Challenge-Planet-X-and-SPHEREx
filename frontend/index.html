@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPHEREx Time Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>SPHEREx Time Viewer</h1>
+    <p>Mira como cambia un parche del cielo con el tiempo: variabilidad y transitorios.</p>
+    <p class="meta">SPHEREx tiene ~6.1 arcsec por pixel y aqui se comparan observaciones de ~1.4 anos:
+      el movimiento propio es menor que un pixel. El modo "Diferencia (solo cambios)" compara
+      imagenes de la misma banda espectral, asi que muestra cambios de brillo, no desplazamientos.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <form id="form">
+        <label>Objetivo
+          <select id="target"><option value="">(coordenadas libres)</option></select>
+        </label>
+        <label>RA (grados) <input id="ra" type="number" step="any" min="0" max="359.99999" placeholder="133.7951"></label>
+        <label>Dec (grados) <input id="dec" type="number" step="any" min="-90" max="90" placeholder="-7.2451"></label>
+        <label>Campo (arcsec) <input id="fov" type="number" min="30" max="300" value="90"></label>
+        <label>Detector
+          <select id="detector">
+            <option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6</option>
+          </select>
+        </label>
+        <label>Modo
+          <select id="mode">
+            <option value="normal">Imagenes</option>
+            <option value="diff">Diferencia (solo cambios)</option>
+            <option value="stack">Apilado (suma)</option>
+          </select>
+        </label>
+        <label>Epocas max <input id="max" type="number" min="1" max="150" value="40"></label>
+        <button id="load" type="submit">Cargar</button>
+      </form>
+      <div id="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel viewer">
+      <canvas id="screen" width="480" height="480"></canvas>
+      <div class="player">
+        <button id="play" type="button" disabled>Reproducir</button>
+        <input id="slider" type="range" min="0" max="0" value="0" disabled>
+        <select id="speed" title="Velocidad">
+          <option value="200">5 fps</option>
+          <option value="100">10 fps</option>
+          <option value="500">2 fps</option>
+        </select>
+      </div>
+      <div id="meta" class="meta"></div>
+      <div class="actions">
+        <span id="gaia" class="badge">Gaia: -</span>
+        <a id="mp4" class="button disabled" href="#" download>Descargar MP4</a>
+        <select id="mp4fps" title="Cuadros por segundo del MP4"><option>5</option><option>10</option></select>
+      </div>
+    </section>
+
+    <section class="panel spectrum">
+      <h2>Espectro (102 bandas)</h2>
+      <canvas id="spec" width="820" height="300"></canvas>
+      <div id="specnote" class="meta"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

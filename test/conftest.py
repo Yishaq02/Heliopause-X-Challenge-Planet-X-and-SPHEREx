@@ -1,9 +1,14 @@
+import os
 import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 from astropy.io import fits
+
+# Las pruebas no deben tropezar con el limitador ni purgar la cache real.
+os.environ.setdefault("SPHEREX_RATE", "0")
+os.environ.setdefault("SPHEREX_CACHE_MB", "0")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
 

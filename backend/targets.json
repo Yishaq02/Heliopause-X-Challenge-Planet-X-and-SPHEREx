@@ -1,7 +1,14 @@
 [
-  {"id": "barnard", "nombre": "Estrella de Barnard", "ra": 269.4521, "dec": 4.6934},
-  {"id": "epsilon_indi_b", "nombre": "Epsilon Indi B", "ra": 330.8404, "dec": -56.7860},
-  {"id": "objetivo3", "nombre": "TODO objetivo 3", "ra": 0.0, "dec": 0.0},
-  {"id": "objetivo4", "nombre": "TODO objetivo 4", "ra": 0.0, "dec": 0.0},
-  {"id": "objetivo5", "nombre": "TODO objetivo 5", "ra": 0.0, "dec": 0.0}
+  {"id": "barnard", "nombre": "Estrella de Barnard", "ra": 269.448503, "dec": 4.739420,
+   "pmra": -801.6, "pmdec": 10362.4, "epoch": 2016.0, "fuente": "Gaia DR3 4472832130942575872"},
+  {"id": "epsilon_indi_b", "nombre": "Epsilon Indi B (par de enanas marrones)", "ra": 331.076453, "dec": -56.793812,
+   "pmra": 3982.0, "pmdec": -2466.8, "epoch": 2016.0, "fuente": "Gaia DR3 6412596012146801152"},
+  {"id": "wise0855", "nombre": "WISE 0855-0714", "ra": 133.795129, "dec": -7.245147,
+   "pmra": -8100.0, "pmdec": 700.0, "epoch": 2010.8,
+   "fuente": "RA/Dec de la pagina del reto; PM de la literatura (~8.1 arcsec/yr); verificado: apilando detectores 5 y 6 el pico cae en el centro (SNR 6 y 11.5); no esta en Gaia"},
+  {"id": "rw_aur", "nombre": "RW Aurigae (variable)", "ra": 76.956081, "dec": 30.401205,
+   "pmra": 2.6, "pmdec": -27.4, "epoch": 2016.0, "fuente": "Gaia DR3 156430822114424576"},
+  {"id": "r_dra", "nombre": "R Draconis (variable)", "ra": 248.167378, "dec": 66.755007,
+   "pmra": -20.6, "pmdec": 6.1, "epoch": 2016.0, "fuente": "Gaia DR3 1648328016354496384"}
 ]
+

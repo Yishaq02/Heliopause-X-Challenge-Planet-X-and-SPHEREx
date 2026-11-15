@@ -13,6 +13,19 @@ def cargar_targets():
     return json.loads((BASE / "targets.json").read_text(encoding="utf-8"))
 
 
+def mjd_a_anio(mjd):
+    return 2000.0 + (mjd - 51544.5) / 365.25
+
+
+def posicion(t, anio):
+    """(ra, dec) en grados del objetivo en el anio dado (movimiento propio lineal)."""
+    import math
+    dt = anio - t.get("epoch", 2000.0)
+    dec = t["dec"] + t.get("pmdec", 0.0) / 3.6e6 * dt
+    ra = t["ra"] + t.get("pmra", 0.0) / 3.6e6 * dt / math.cos(math.radians(t["dec"]))
+    return ra, dec
+
+
 def get_target(tid):
     for t in cargar_targets():
         if t["id"] == tid:

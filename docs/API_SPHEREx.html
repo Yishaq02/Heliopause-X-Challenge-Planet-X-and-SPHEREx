@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API SPHEREx — Documento Técnico</title>
+<style>
+  :root{
+    --navy:#0a1a33; --navy2:#12294d; --blue:#1f4e8c; --blue2:#2f6bb5;
+    --cyan:#3fb6f2; --gold:#f2b134; --ink:#172433; --muted:#5a6b7d;
+    --line:#d6e1ee; --paper:#f7f9fc; --soft:#eef4fb;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    color:var(--ink); font-size:10.4pt; line-height:1.55; background:#fff;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  @page{ size:A4; margin:18mm 16mm 15mm 16mm; }
+  @page :first{ margin:0; }
+
+  /* ---------- Portada ---------- */
+  .cover{
+    width:210mm; height:297mm; padding:26mm 22mm 20mm 22mm;
+    background:linear-gradient(150deg,#071426 0%,#0a1a33 46%,#12305c 100%);
+    color:#eaf3ff; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:space-between;
+    break-after:page;
+  }
+  .cover::before{
+    content:""; position:absolute; inset:0; opacity:.85;
+    background-image:
+      radial-gradient(1.6px 1.6px at 12% 18%,#ffffff,transparent),
+      radial-gradient(1.2px 1.2px at 28% 8%,#cfe8ff,transparent),
+      radial-gradient(1.8px 1.8px at 72% 12%,#ffffff,transparent),
+      radial-gradient(1.1px 1.1px at 86% 24%,#bcd9ff,transparent),
+      radial-gradient(1.4px 1.4px at 46% 30%,#ffffff,transparent),
+      radial-gradient(1.2px 1.2px at 18% 62%,#cfe8ff,transparent),
+      radial-gradient(1.7px 1.7px at 82% 70%,#ffffff,transparent),
+      radial-gradient(1.1px 1.1px at 62% 82%,#bcd9ff,transparent),
+      radial-gradient(1.4px 1.4px at 34% 88%,#ffffff,transparent),
+      radial-gradient(1.2px 1.2px at 92% 52%,#cfe8ff,transparent),
+      radial-gradient(1.3px 1.3px at 8% 82%,#ffffff,transparent);
+  }
+  .cover::after{
+    content:""; position:absolute; right:-140mm; top:-80mm; width:340mm; height:340mm;
+    background:radial-gradient(circle,rgba(63,182,242,.14),transparent 62%);
+  }
+  .cover > *{ position:relative; z-index:2; }
+  .brand{ display:flex; align-items:center; gap:12px; letter-spacing:.28em;
+    font-size:8.5pt; text-transform:uppercase; color:#9dc4ef; font-weight:600; }
+  .brand .orbit{ width:26px; height:26px; border:2px solid var(--cyan); border-radius:50%;
+    position:relative; display:inline-block; }
+  .brand .orbit::after{ content:""; position:absolute; width:34px; height:14px;
+    border:2px solid rgba(63,182,242,.65); border-radius:50%; left:-6px; top:4px;
+    transform:rotate(-24deg); }
+  .cover .eyebrow{ margin-top:34mm; color:var(--cyan); font-weight:700;
+    letter-spacing:.22em; font-size:9.5pt; text-transform:uppercase; }
+  .cover h1{ font-family:Georgia,"Times New Roman",serif; font-size:38pt; line-height:1.06;
+    margin:10px 0 0 0; font-weight:700; color:#ffffff; letter-spacing:-.01em; }
+  .cover h1 .thin{ display:block; font-size:18pt; letter-spacing:.04em;
+    color:#a9c9ea; font-weight:400; margin-top:12px; font-family:"Segoe UI",Arial,sans-serif; }
+  .cover .rule{ width:96px; height:4px; background:linear-gradient(90deg,var(--cyan),var(--gold));
+    border-radius:2px; margin:24px 0 20px; }
+  .cover .lede{ color:#c7dbf2; font-size:11.5pt; max-width:150mm; line-height:1.6; }
+  .cover .badges{ display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .cover .chip{ font-size:8.5pt; letter-spacing:.06em; text-transform:uppercase;
+    border:1px solid rgba(63,182,242,.45); color:#bfe3ff; padding:5px 11px; border-radius:999px;
+    background:rgba(63,182,242,.08); font-weight:600; }
+  .cover .meta{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0;
+    border-top:1px solid rgba(157,196,239,.28); padding-top:16px; }
+  .cover .meta .cell{ padding-right:14px; }
+  .cover .meta .k{ font-size:7.6pt; letter-spacing:.16em; text-transform:uppercase;
+    color:#7fa6cf; margin-bottom:4px; font-weight:700; }
+  .cover .meta .v{ font-size:10pt; color:#e6f1ff; font-weight:600; }
+
+  /* ---------- Estructura ---------- */
+  .section{ break-before:page; }
+  h2{ font-family:Georgia,"Times New Roman",serif; font-size:19pt; color:var(--navy);
+    margin:0 0 4px 0; font-weight:700; letter-spacing:-.01em; break-after:avoid; }
+  h2 .num{ color:var(--cyan); font-family:"Segoe UI",Arial,sans-serif; font-size:11pt;
+    font-weight:800; letter-spacing:.1em; display:block; margin-bottom:6px; }
+  .h-rule{ height:3px; width:100%; background:linear-gradient(90deg,var(--blue),var(--cyan) 40%,transparent 85%);
+    border-radius:2px; margin:0 0 16px 0; }
+  h3{ font-size:12pt; color:var(--blue); margin:18px 0 6px 0; break-after:avoid; }
+  h4{ font-size:10.5pt; color:var(--navy); margin:14px 0 4px 0; break-after:avoid; }
+  p{ margin:0 0 9px 0; text-align:justify; }
+  ul,ol{ margin:6px 0 10px 0; padding-left:20px; }
+  li{ margin-bottom:4px; }
+  a{ color:var(--blue); text-decoration:none; }
+  strong{ color:var(--navy); }
+  code{ font-family:Consolas,"Courier New",monospace; font-size:8.8pt; background:#eaf1f9;
+    color:#14406f; padding:1px 5px; border-radius:3px; }
+  .lead{ font-size:11pt; color:#33465a; }
+
+  /* ---------- Tablas ---------- */
+  table{ width:100%; border-collapse:collapse; font-size:8.9pt; margin:10px 0 14px; }
+  th{ background:var(--navy); color:#fff; text-align:left; padding:6px 8px;
+    font-weight:600; font-size:8.6pt; letter-spacing:.02em; }
+  td{ padding:5.5px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:nth-child(even) td{ background:#f2f6fb; }
+  td code{ font-size:8.3pt; background:transparent; padding:0; color:#14406f; }
+  .method{ display:inline-block; font-family:Consolas,monospace; font-size:7.6pt;
+    font-weight:700; color:#fff; background:var(--blue); padding:1px 6px; border-radius:4px;
+    letter-spacing:.03em; }
+  .method.get{ background:#1f7a4d; }
+
+  /* ---------- Cajas ---------- */
+  .callout{ background:var(--soft); border-left:4px solid var(--cyan); padding:10px 14px;
+    border-radius:5px; margin:12px 0; font-size:9.6pt; }
+  .callout .t{ font-weight:700; color:var(--blue); display:block; margin-bottom:3px;
+    font-size:9pt; letter-spacing:.04em; text-transform:uppercase; }
+  .callout.warn{ background:#fff7e8; border-left-color:var(--gold); }
+  .callout.warn .t{ color:#a9741a; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .card{ border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:#fff; }
+  .card .k{ font-size:7.8pt; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--muted); font-weight:700; margin-bottom:3px; }
+  .card .v{ font-size:10pt; color:var(--navy); font-weight:600; }
+
+  /* ---------- Índice ---------- */
+  .toc{ list-style:none; padding:0; margin:8px 0 0; }
+  .toc li{ display:flex; align-items:baseline; gap:10px; padding:7px 2px;
+    border-bottom:1px dotted var(--line); font-size:10pt; }
+  .toc .n{ color:var(--cyan); font-weight:800; min-width:22px; font-size:9pt; }
+  .toc .t{ color:var(--ink); }
+  .toc .d{ color:var(--muted); margin-left:auto; font-size:8.5pt; }
+
+  /* ---------- Diagramas ---------- */
+  .diagram{ width:100%; margin:6px 0 4px; }
+  .diagram svg{ width:100%; height:auto; display:block; }
+  .caption{ font-size:8.4pt; color:var(--muted); text-align:center; margin:2px 0 14px; }
+  .caption b{ color:var(--navy); }
+
+  .footer{ margin-top:22px; padding-top:8px; border-top:1px solid var(--line);
+    font-size:8pt; color:var(--muted); display:flex; justify-content:space-between; }
+  .kv{ font-size:9.2pt; }
+</style>
+</head>
+<body>
+
+<!-- ========================= PORTADA ========================= -->
+<section class="cover">
+  <div class="brand"><span class="orbit"></span> Heliopause X · NASA Space Apps Challenge</div>
+
+  <div>
+    <div class="eyebrow">Documento técnico de API</div>
+    <h1>SPHEREx Time Viewer
+      <span class="thin">Arquitectura, contrato y decisiones de implementación</span>
+    </h1>
+    <div class="rule"></div>
+    <p class="lede">Especificación interna del servicio que consulta imágenes de SPHEREx,
+      reconstruye series temporales de un parche del cielo y detecta cambios por diferencia
+      entre épocas, con espectro de 102 bandas y verificación cruzada con Gaia DR3.</p>
+    <div class="badges">
+      <span class="chip">Track · Planet X &amp; SPHEREx</span>
+      <span class="chip">FastAPI · Python 3.12</span>
+      <span class="chip">IRSA · SIA</span>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="cell"><div class="k">Proyecto</div><div class="v">Heliopause X</div></div>
+    <div class="cell"><div class="k">Versión del documento</div><div class="v">1.0</div></div>
+    <div class="cell"><div class="k">Fecha</div><div class="v">14 de noviembre de 2026</div></div>
+  </div>
+</section>
+
+<!-- ========================= ÍNDICE + RESUMEN ========================= -->
+<section class="section">
+  <h2><span class="num">00</span>Contenido</h2>
+  <div class="h-rule"></div>
+  <ol class="toc">
+    <li><span class="n">01</span><span class="t">Resumen técnico</span><span class="d">qué resuelve el servicio</span></li>
+    <li><span class="n">02</span><span class="t">Contexto del reto</span><span class="d">Planet X &amp; SPHEREx</span></li>
+    <li><span class="n">03</span><span class="t">Arquitectura general</span><span class="d">componentes y dependencias</span></li>
+    <li><span class="n">04</span><span class="t">Flujo de una petición</span><span class="d">de la consulta a la respuesta</span></li>
+    <li><span class="n">05</span><span class="t">Módulos y responsabilidades</span><span class="d">mapa del backend</span></li>
+    <li><span class="n">06</span><span class="t">Modelo de datos y caché</span><span class="d">FITS, WCS-WAVE, objetivos</span></li>
+    <li><span class="n">07</span><span class="t">Referencia de endpoints</span><span class="d">contrato HTTP</span></li>
+    <li><span class="n">08</span><span class="t">Decisiones de implementación</span><span class="d">descarga, diff, espectro</span></li>
+    <li><span class="n">09</span><span class="t">Configuración y operación</span><span class="d">entorno, arranque, pruebas</span></li>
+    <li><span class="n">10</span><span class="t">Limitaciones y próximos pasos</span><span class="d">deuda técnica</span></li>
+    <li><span class="n">11</span><span class="t">Referencias</span><span class="d">fuentes externas</span></li>
+  </ol>
+
+  <h3 style="margin-top:26px">Ficha rápida del servicio</h3>
+  <div class="grid2">
+    <div class="card"><div class="k">Ejecución</div><div class="v"><code>uvicorn app:app --app-dir backend</code></div></div>
+    <div class="card"><div class="k">Interfaz y docs</div><div class="v"><code>/</code> · <code>/docs</code> (OpenAPI)</div></div>
+    <div class="card"><div class="k">Fuente de imágenes</div><div class="v">IRSA SIA · SPHEREx DR1 + QR3</div></div>
+    <div class="card"><div class="k">Astrometría</div><div class="v">Gaia DR3 · cone search</div></div>
+    <div class="card"><div class="k">Video</div><div class="v"><code>ffmpeg</code> · H.264 / MP4</div></div>
+    <div class="card"><div class="k">Persistencia</div><div class="v">Sistema de archivos (<code>data/</code>)</div></div>
+  </div>
+  <div class="callout">
+    <span class="t">Cómo leer este documento</span>
+    Las secciones 03 y 04 describen la arquitectura y el flujo; las secciones 05 a 08 concentran el
+    detalle de implementación y el contrato HTTP; 09 y 10 cubren operación, límites y deuda técnica.
+  </div>
+</section>
+
+<section class="section">
+  <h2><span class="num">01</span>Resumen técnico</h2>
+  <div class="h-rule"></div>
+  <p class="lead">El backend es un servicio <strong>FastAPI</strong> sin estado persistente propio que
+    expone una API HTTP sobre observaciones de <strong>SPHEREx</strong>. Dado un objetivo del reto o unas
+    coordenadas libres (RA/Dec), recupera recortes FITS de IRSA, los cachea en disco y devuelve
+    representaciones listas para consumir: frames en PNG (base64), apilados, espectros de 102 bandas,
+    diferencias entre épocas y video MP4.</p>
+  <div class="grid2">
+    <div class="card"><div class="k">Entrada</div><div class="v"><code>target</code> o <code>ra</code>/<code>dec</code> + <code>fov</code>, <code>detector</code>, <code>mode</code></div></div>
+    <div class="card"><div class="k">Salida</div><div class="v">JSON con PNG base64, espectros, metadatos o MP4</div></div>
+    <div class="card"><div class="k">Fuente de datos</div><div class="v">IRSA SIA (<code>spherex_dr1</code> + <code>spherex_qr3</code>) y Gaia DR3</div></div>
+    <div class="card"><div class="k">Persistencia</div><div class="v">Caché en <code>data/_cache</code>, tablas WCS en <code>data/_wcs</code>, FITS locales en <code>data/&lt;id&gt;</code></div></div>
+  </div>
+  <div class="callout">
+    <span class="t">Principio de diseño</span>
+    El servicio prioriza <strong>latencia y bajo consumo de red</strong>: cada recorte remoto se descarga
+    una sola vez, se corta tras la extensión <code>FLAGS</code> (≈48 KB de un archivo de ≈4 MB) y la tabla
+    de longitud de onda se almacena por detector y versión. Las vistas de imágenes y espectro comparten
+    la misma caché.
+  </div>
+
+  <h3>Capacidades principales</h3>
+  <ul>
+    <li><strong>Series temporales:</strong> frames ordenados por <code>MJD-OBS</code> con estiramiento común para evitar parpadeo.</li>
+    <li><strong>Detección de cambios:</strong> diferencia por banda espectral con umbral robusto (MAD) y máscara de píxeles sin dato.</li>
+    <li><strong>Espectro resumido:</strong> 102 valores que cubren los seis detectores y 17 canales por detector.</li>
+    <li><strong>Cruce con Gaia:</strong> clasificación inmediata de candidatos catalogados frente a no catalogados.</li>
+  </ul>
+</section>
+
+<!-- ========================= CONTEXTO ========================= -->
+<section class="section">
+  <h2><span class="num">02</span>Contexto del reto</h2>
+  <div class="h-rule"></div>
+  <p>El reto <strong>Planet X and SPHEREx</strong> propone usar las observaciones infrarrojas de
+    SPHEREx para estudiar cómo cambia una región del cielo a lo largo del tiempo. SPHEREx realiza
+    levantamientos repetidos con una resolución aproximada de <strong>6.1 arcsec/píxel</strong> y cubre
+    las visitas disponibles en un intervalo de cerca de <strong>1.4 años</strong>.</p>
+  <p>A esta escala, el movimiento propio de la mayoría de las estrellas es menor que un píxel, por lo que
+    las variaciones observables corresponden principalmente a <strong>cambios de brillo</strong>
+    (variabilidad, tránsitos, eventos transitorios) y no a desplazamientos. El producto del proyecto es
+    una herramienta que hace visible esa evolución temporal y permite distinguir cambios reales de
+    diferencias de color o calibración.</p>
+  <h3>Objetivos del servicio</h3>
+  <ul>
+    <li>Recuperar y normalizar observaciones de SPHEREx para una posición arbitraria del cielo.</li>
+    <li>Construir secuencias temporales reproducibles como video, con estiramiento común de intensidad.</li>
+    <li>Calcular diferencias entre épocas de la <em>misma banda espectral</em> para aislar cambio temporal.</li>
+    <li>Derivar un espectro resumido de 102 valores (6 detectores × 17 canales).</li>
+    <li>Contrastar la posición con Gaia DR3 para señalar candidatos no catalogados como anomalía.</li>
+  </ul>
+  <div class="callout warn">
+    <span class="t">Alcance</span>
+    El documento describe la implementación interna del backend y su contrato HTTP. No cubre el diseño
+    visual del frontend ni la validación científica de los candidatos detectados.
+  </div>
+</section>
+
+<!-- ========================= ARQUITECTURA ========================= -->
+<section class="section">
+  <h2><span class="num">03</span>Arquitectura general</h2>
+  <div class="h-rule"></div>
+  <p>La aplicación es un monolito modular: una única instancia FastAPI sirve la API y el frontend
+    estático. Las dependencias externas son IRSA (imágenes SPHEREx), Gaia DR3 (astrometría) y
+    <code>ffmpeg</code> (exportación de video). Todo el estado se materializa en el sistema de archivos.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 920 540" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#3f7fbf"/>
+        </marker>
+        <marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#8fa6bd"/>
+        </marker>
+      </defs>
+
+      <!-- Client -->
+      <rect x="20" y="46" width="196" height="150" rx="10" fill="#eef4fb" stroke="#b9cde4"/>
+      <text x="36" y="72" font-size="11" font-weight="700" fill="#0a1a33">Cliente</text>
+      <text x="36" y="96" font-size="8.6" fill="#33465a">Frontend HTML + JS</text>
+      <text x="36" y="114" font-size="8.6" fill="#33465a">Canvas · reproductor</text>
+      <text x="36" y="132" font-size="8.6" fill="#33465a">Espectro de 102 bandas</text>
+      <text x="36" y="150" font-size="8.6" fill="#33465a">Descarga MP4</text>
+
+      <!-- Storage -->
+      <rect x="20" y="330" width="196" height="150" rx="10" fill="#fdf6e7" stroke="#e6c98c"/>
+      <text x="36" y="356" font-size="11" font-weight="700" fill="#7a5512">Almacenamiento local</text>
+      <text x="36" y="380" font-size="8.6" fill="#6b5423">data/&lt;id&gt;/*.fits</text>
+      <text x="36" y="398" font-size="8.6" fill="#6b5423">data/_cache/</text>
+      <text x="36" y="416" font-size="8.6" fill="#6b5423">data/_wcs/</text>
+      <text x="36" y="440" font-size="8.2" fill="#8a7135">purga por SPHEREX_CACHE_MB</text>
+
+      <!-- API -->
+      <rect x="286" y="96" width="300" height="336" rx="10" fill="#0a1a33"/>
+      <text x="304" y="122" font-size="11" font-weight="700" fill="#ffffff">FastAPI · backend</text>
+      <rect x="304" y="136" width="264" height="52" rx="7" fill="#14345d" stroke="#2f6bb5"/>
+      <text x="316" y="157" font-size="8.6" fill="#bfe3ff" font-weight="700">Middleware</text>
+      <text x="316" y="174" font-size="8.2" fill="#a9c9ea">CORS · rate limit por IP</text>
+      <rect x="304" y="200" width="264" height="122" rx="7" fill="#14345d" stroke="#2f6bb5"/>
+      <text x="316" y="221" font-size="8.6" fill="#bfe3ff" font-weight="700">Rutas HTTP</text>
+      <text x="316" y="241" font-size="8.2" fill="#dbe9f8">/targets · /cutouts · /stack</text>
+      <text x="316" y="259" font-size="8.2" fill="#dbe9f8">/spectrum · /spectrum/{id}</text>
+      <text x="316" y="277" font-size="8.2" fill="#dbe9f8">/diff/{id} · /export-mp4</text>
+      <text x="316" y="295" font-size="8.2" fill="#dbe9f8">/gaia-check</text>
+      <rect x="304" y="334" width="264" height="80" rx="7" fill="#14345d" stroke="#2f6bb5"/>
+      <text x="316" y="355" font-size="8.6" fill="#bfe3ff" font-weight="700">Resolución de campo</text>
+      <text x="316" y="374" font-size="8.2" fill="#dbe9f8">_campo() → épocas + meta</text>
+      <text x="316" y="392" font-size="8.2" fill="#dbe9f8">validación · movimiento propio</text>
+
+      <!-- Processing -->
+      <rect x="654" y="46" width="246" height="196" rx="10" fill="#eef4fb" stroke="#b9cde4"/>
+      <text x="670" y="72" font-size="11" font-weight="700" fill="#0a1a33">Procesado</text>
+      <rect x="670" y="86" width="104" height="60" rx="6" fill="#ffffff" stroke="#b9cde4"/>
+      <text x="680" y="108" font-size="8.4" font-weight="700" fill="#1f4e8c">frames.py</text>
+      <text x="680" y="124" font-size="7.8" fill="#5a6b7d">PNG + flag_bits</text>
+      <rect x="784" y="86" width="100" height="60" rx="6" fill="#ffffff" stroke="#b9cde4"/>
+      <text x="794" y="108" font-size="8.4" font-weight="700" fill="#1f4e8c">diff.py</text>
+      <text x="794" y="124" font-size="7.8" fill="#5a6b7d">resta + MAD</text>
+      <rect x="670" y="156" width="104" height="60" rx="6" fill="#ffffff" stroke="#b9cde4"/>
+      <text x="680" y="178" font-size="8.4" font-weight="700" fill="#1f4e8c">spectra.py</text>
+      <text x="680" y="194" font-size="7.8" fill="#5a6b7d">6 × 17 canales</text>
+      <rect x="784" y="156" width="100" height="60" rx="6" fill="#ffffff" stroke="#b9cde4"/>
+      <text x="794" y="178" font-size="8.4" font-weight="700" fill="#1f4e8c">video.py</text>
+      <text x="794" y="194" font-size="7.8" fill="#5a6b7d">normaliza + MP4</text>
+
+      <!-- External -->
+      <rect x="654" y="300" width="246" height="180" rx="10" fill="#fdf6e7" stroke="#e6c98c"/>
+      <text x="670" y="326" font-size="11" font-weight="700" fill="#7a5512">Servicios externos</text>
+      <rect x="670" y="340" width="214" height="42" rx="6" fill="#ffffff" stroke="#e6c98c"/>
+      <text x="680" y="357" font-size="8.4" font-weight="700" fill="#8a5a12">IRSA SIA</text>
+      <text x="680" y="373" font-size="7.8" fill="#6b5423">spherex_dr1 + spherex_qr3</text>
+      <rect x="670" y="390" width="214" height="38" rx="6" fill="#ffffff" stroke="#e6c98c"/>
+      <text x="680" y="414" font-size="8.4" font-weight="700" fill="#8a5a12">Gaia DR3 · cone search</text>
+      <rect x="670" y="436" width="214" height="34" rx="6" fill="#ffffff" stroke="#e6c98c"/>
+      <text x="680" y="457" font-size="8.4" font-weight="700" fill="#8a5a12">ffmpeg · codificación H.264</text>
+
+      <!-- Arrows -->
+      <line x1="216" y1="121" x2="286" y2="150" stroke="#3f7fbf" stroke-width="1.6" marker-end="url(#ar)"/>
+      <text x="222" y="140" font-size="7.4" fill="#3f7fbf">HTTP</text>
+      <line x1="286" y1="300" x2="216" y2="370" stroke="#3f7fbf" stroke-width="1.6" marker-end="url(#ar)"/>
+      <text x="226" y="345" font-size="7.4" fill="#3f7fbf">FITS</text>
+      <line x1="586" y1="160" x2="654" y2="150" stroke="#3f7fbf" stroke-width="1.6" marker-end="url(#ar)"/>
+      <text x="596" y="146" font-size="7.4" fill="#3f7fbf">épocas</text>
+      <line x1="586" y1="360" x2="654" y2="370" stroke="#8fa6bd" stroke-width="1.6" marker-end="url(#ar2)"/>
+      <text x="592" y="382" font-size="7.4" fill="#6b7f95">consulta</text>
+      <line x1="777" y1="242" x2="777" y2="300" stroke="#8fa6bd" stroke-width="1.6" marker-end="url(#ar2)"/>
+      <text x="784" y="276" font-size="7.4" fill="#6b7f95">MP4</text>
+    </svg>
+  </div>
+  <p class="caption"><b>Figura 1.</b> Componentes del sistema y dependencias principales. El backend
+    concentra la lógica; el almacenamiento local actúa como caché entre ejecuciones.</p>
+
+  <h3>Dependencias externas</h3>
+  <table>
+    <thead><tr><th style="width:22%">Dependencia</th><th style="width:34%">Uso</th><th>Comportamiento si falla</th></tr></thead>
+    <tbody>
+      <tr><td>IRSA SIA</td><td>Descubrimiento y descarga de recortes SPHEREx (DR1 + QR3).</td><td>Reintentos con espera; si persiste, <code>503</code>.</td></tr>
+      <tr><td>Gaia DR3</td><td>Búsqueda de cono para verificar si la fuente es conocida.</td><td>Reintento único; si persiste, <code>503</code>.</td></tr>
+      <tr><td><code>ffmpeg</code></td><td>Codificación de la secuencia de frames a MP4.</td><td>Error <code>500</code> con mensaje explícito.</td></tr>
+      <tr><td>Disco local</td><td>Caché de recortes, tablas WCS y FITS de objetivos.</td><td>Si no hay escritura, se opera sin caché persistente.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========================= FLUJO ========================= -->
+<section class="section">
+  <h2><span class="num">04</span>Flujo de una petición</h2>
+  <div class="h-rule"></div>
+  <p>El siguiente recorrido describe una petición típica a <code>/cutouts</code>, <code>/spectrum</code>,
+    <code>/diff/{id}</code> o <code>/export-mp4</code>. Las rutas de descarga pasan primero por el
+    limitador de peticiones; después se resuelve el campo y se decide entre FITS locales o consulta a IRSA.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 920 610" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+      <defs>
+        <marker id="af" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#3f7fbf"/>
+        </marker>
+      </defs>
+      <!-- steps -->
+      <g>
+        <rect x="70" y="20" width="470" height="46" rx="8" fill="#0a1a33"/>
+        <circle cx="46" cy="43" r="15" fill="#3fb6f2"/>
+        <text x="46" y="47" font-size="10" font-weight="700" fill="#0a1a33" text-anchor="middle">1</text>
+        <text x="86" y="40" font-size="9.4" font-weight="700" fill="#ffffff">Petición HTTP GET</text>
+        <text x="86" y="56" font-size="8.2" fill="#a9c9ea">/cutouts · /spectrum · /diff/{id} · /export-mp4</text>
+      </g>
+      <line x1="305" y1="66" x2="305" y2="86" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="88" width="470" height="46" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+        <circle cx="46" cy="111" r="15" fill="#1f4e8c"/>
+        <text x="46" y="115" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+        <text x="86" y="108" font-size="9.4" font-weight="700" fill="#0a1a33">Middleware: CORS + rate limit por IP</text>
+        <text x="86" y="124" font-size="8.2" fill="#5a6b7d">Token bucket · 60 rpm · burst 20 · 429 al exceder</text>
+      </g>
+      <line x1="305" y1="134" x2="305" y2="154" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="156" width="470" height="46" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+        <circle cx="46" cy="179" r="15" fill="#1f4e8c"/>
+        <text x="46" y="183" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+        <text x="86" y="176" font-size="9.4" font-weight="700" fill="#0a1a33">Resolución del campo y validación</text>
+        <text x="86" y="192" font-size="8.2" fill="#5a6b7d">target local o RA/Dec · fov 30–300″ · detector 1–6</text>
+      </g>
+      <line x1="305" y1="202" x2="305" y2="222" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="224" width="470" height="46" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+        <circle cx="46" cy="247" r="15" fill="#1f4e8c"/>
+        <text x="46" y="251" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+        <text x="86" y="244" font-size="9.4" font-weight="700" fill="#0a1a33">¿Hay FITS locales del objetivo?</text>
+        <text x="86" y="260" font-size="8.2" fill="#5a6b7d">data/&lt;id&gt;/*.fits → se omite la consulta remota</text>
+      </g>
+      <line x1="305" y1="270" x2="305" y2="290" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="292" width="470" height="46" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+        <circle cx="46" cy="315" r="15" fill="#1f4e8c"/>
+        <text x="46" y="319" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+        <text x="86" y="312" font-size="9.4" font-weight="700" fill="#0a1a33">Consulta SIA a IRSA (DR1 + QR3)</text>
+        <text x="86" y="328" font-size="8.2" fill="#5a6b7d">radio ∝ fov · reintentos · ventana temporal</text>
+      </g>
+      <line x1="305" y1="338" x2="305" y2="358" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="360" width="470" height="46" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+        <circle cx="46" cy="383" r="15" fill="#1f4e8c"/>
+        <text x="46" y="387" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+        <text x="86" y="380" font-size="9.4" font-weight="700" fill="#0a1a33">Descarga paralela con corte tras FLAGS</text>
+        <text x="86" y="396" font-size="8.2" fill="#5a6b7d">≈48 KB por recorte · escritura atómica en caché</text>
+      </g>
+      <line x1="305" y1="406" x2="305" y2="426" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="428" width="470" height="46" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+        <circle cx="46" cy="451" r="15" fill="#1f4e8c"/>
+        <text x="46" y="455" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">7</text>
+        <text x="86" y="448" font-size="9.4" font-weight="700" fill="#0a1a33">Lectura de épocas y procesado</text>
+        <text x="86" y="464" font-size="8.2" fill="#5a6b7d">astropy · movimiento propio · normal/diff/stack · espectro</text>
+      </g>
+      <line x1="305" y1="474" x2="305" y2="494" stroke="#3f7fbf" stroke-width="1.8" marker-end="url(#af)"/>
+
+      <g>
+        <rect x="70" y="496" width="470" height="46" rx="8" fill="#0a1a33"/>
+        <circle cx="46" cy="519" r="15" fill="#3fb6f2"/>
+        <text x="46" y="523" font-size="10" font-weight="700" fill="#0a1a33" text-anchor="middle">8</text>
+        <text x="86" y="516" font-size="9.4" font-weight="700" fill="#ffffff">Respuesta al cliente</text>
+        <text x="86" y="532" font-size="8.2" fill="#a9c9ea">JSON + PNG base64 · espectro · MP4 (FileResponse)</text>
+      </g>
+
+      <!-- side notes -->
+      <rect x="580" y="224" width="310" height="58" rx="8" fill="#fff7e8" stroke="#e6c98c"/>
+      <text x="596" y="245" font-size="8.4" font-weight="700" fill="#8a5a12">Atajo de caché</text>
+      <text x="596" y="262" font-size="8" fill="#6b5423">Si el campo ya está en data/_cache, se salta</text>
+      <text x="596" y="276" font-size="8" fill="#6b5423">el paso 5 y se va directo a la lectura (paso 7).</text>
+      <line x1="580" y1="253" x2="540" y2="253" stroke="#e6c98c" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+      <rect x="580" y="92" width="310" height="72" rx="8" fill="#eef4fb" stroke="#b9cde4"/>
+      <text x="596" y="113" font-size="8.4" font-weight="700" fill="#1f4e8c">Errores del contrato</text>
+      <text x="596" y="130" font-size="8" fill="#5a6b7d">400 parámetros · 404 sin datos</text>
+      <text x="596" y="144" font-size="8" fill="#5a6b7d">422 validación · 429 límite</text>
+      <text x="596" y="158" font-size="8" fill="#5a6b7d">503 IRSA / Gaia no disponible</text>
+      <line x1="580" y1="128" x2="540" y2="120" stroke="#b9cde4" stroke-width="1.5" stroke-dasharray="4 3"/>
+    </svg>
+  </div>
+  <p class="caption"><b>Figura 2.</b> Secuencia de resolución de una petición. Los pasos 5 y 6 solo se
+    ejecutan cuando el campo no se encuentra íntegramente en caché.</p>
+
+  <div class="callout">
+    <span class="t">Idempotencia y concurrencia</span>
+    Las peticiones de lectura pueden repetirse sin efectos secundarios: la caché actúa como resultado
+    memoizado. Un <em>lock</em> por carpeta serializa la descarga de un mismo campo, de modo que dos
+    clientes simultáneos esperan una sola transferencia. La escritura atómica (<code>.part</code> →
+    <code>rename</code>) evita dejar archivos parciales ante una interrupción.
+  </div>
+  <div class="callout warn">
+    <span class="t">Coste de la primera consulta</span>
+    Un campo nuevo implica consultar IRSA y descargar hasta <code>DESCARGAS = 120</code> recortes. El
+    tiempo depende de la red y de la concurrencia configurada; las visitas posteriores al mismo campo
+    se resuelven desde disco.
+  </div>
+</section>
+
+<!-- ========================= MÓDULOS ========================= -->
+<section class="section">
+  <h2><span class="num">05</span>Módulos y responsabilidades</h2>
+  <div class="h-rule"></div>
+  <p>El backend se organiza en módulos con una responsabilidad acotada. La lógica científica y de
+    acceso a datos está separada del contrato HTTP, lo que permite probar cada pieza de forma aislada.</p>
+  <table>
+    <thead><tr><th style="width:22%">Módulo</th><th>Responsabilidad</th></tr></thead>
+    <tbody>
+      <tr><td><code>app.py</code></td><td>Instancia FastAPI, rutas, middleware CORS y de rate limit, montaje del frontend estático.</td></tr>
+      <tr><td><code>config.py</code></td><td>Rutas base, carga de <code>targets.json</code>, conversión MJD→año y corrección lineal por movimiento propio.</td></tr>
+      <tr><td><code>cutouts.py</code></td><td>Consulta SIA a IRSA, descarga parcial de FITS, caché en disco, tabla WCS por detector y purga.</td></tr>
+      <tr><td><code>fits_engine.py</code></td><td>Lectura de FITS locales con astropy, lista de épocas, caché por firma de archivos, flujo en una posición.</td></tr>
+      <tr><td><code>frames.py</code></td><td>Frames serializables (PNG base64 + metadatos) para los modos normal, diff y stack; fracciones de bits <code>FLAGS</code>.</td></tr>
+      <tr><td><code>diff.py</code></td><td>Emparejamiento por banda espectral, resta nueva−vieja centrada en mediana, umbral por MAD y codificación PNG.</td></tr>
+      <tr><td><code>spectra.py</code></td><td>Espectro de 102 valores (6 detectores × 17 canales) por interpolación del flujo en la posición del objeto.</td></tr>
+      <tr><td><code>video.py</code></td><td>Normalización de intensidad, escalado de píxeles y generación de MP4 mediante <code>ffmpeg</code>.</td></tr>
+      <tr><td><code>gaia_check.py</code></td><td>Búsqueda de cono en Gaia DR3 y cálculo de la fuente más cercana.</td></tr>
+      <tr><td><code>fetchers.py</code></td><td>Consultas astroquery: combinación de colecciones SPHEREx, Gaia y WISE.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <span class="t">Flujo de dependencias</span>
+    <code>app.py</code> orquesta; <code>_campo()</code> decide entre <code>fits_engine</code> (local) y
+    <code>cutouts</code> (remoto). Los módulos de procesado (<code>frames</code>, <code>spectra</code>,
+    <code>video</code>) consumen listas de épocas y no conocen HTTP.
+  </div>
+</section>
+
+<!-- ========================= MODELO DE DATOS ========================= -->
+<section class="section">
+  <h2><span class="num">06</span>Modelo de datos y caché</h2>
+  <div class="h-rule"></div>
+
+  <h3>Objetivos del reto</h3>
+  <p>Los cinco objetivos viven en <code>backend/targets.json</code>. Cada entrada incluye coordenadas
+    ecuatoriales, movimiento propio y época de referencia, de modo que el servicio puede recentrar la
+    observación en la fecha de cada imagen.</p>
+  <table>
+    <thead><tr><th>Campo</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>Identificador usado en la ruta y en la carpeta <code>data/&lt;id&gt;</code>.</td></tr>
+      <tr><td><code>nombre</code></td><td>Nombre legible del objeto.</td></tr>
+      <tr><td><code>ra</code>, <code>dec</code></td><td>Coordenadas en grados en la época indicada.</td></tr>
+      <tr><td><code>pmra</code>, <code>pmdec</code></td><td>Movimiento propio en miliarcosegundos por año.</td></tr>
+      <tr><td><code>epoch</code></td><td>Año de referencia de las coordenadas (p. ej. 2016.0 para Gaia DR3).</td></tr>
+      <tr><td><code>fuente</code></td><td>Procedencia de la astrometría (Gaia DR3 o literatura).</td></tr>
+    </tbody>
+  </table>
+  <p>La corrección aplicada en <code>config.posicion</code> es lineal:
+    <code>dec = dec₀ + pmdec/3.6e6·Δt</code> y <code>ra = ra₀ + pmra/3.6e6·Δt/cos(dec)</code>.</p>
+
+  <h3>Épocas y extensiones FITS</h3>
+  <p>Cada archivo representa una exposición de un detector. El backend conserva dos extensiones y usa
+    las cabeceras para situar la imagen en el tiempo y en longitud de onda.</p>
+  <table>
+    <thead><tr><th style="width:22%">Extensión / campo</th><th>Uso</th></tr></thead>
+    <tbody>
+      <tr><td><code>IMAGE</code></td><td>Matriz de intensidad en <code>float32</code>.</td></tr>
+      <tr><td><code>FLAGS</code></td><td>Máscara de bits por píxel; se reporta su fracción, no se interpreta.</td></tr>
+      <tr><td>Cabecera</td><td><code>MJD-OBS</code>, <code>DETECTOR</code> y <code>WAVELEN</code>.</td></tr>
+      <tr><td><code>WCS-WAVE</code></td><td>Tabla de longitud de onda por detector, cacheada por versión.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Estructura de caché</h3>
+  <ul>
+    <li><code>data/&lt;id&gt;/*.fits</code> — objetivos descargados localmente para carga instantánea.</li>
+    <li><code>data/_cache/&lt;ra&gt;_&lt;dec&gt;_&lt;fov&gt;_pm…_e…/</code> — recortes remotos por campo, con <code>_meta.json</code>.</li>
+    <li><code>data/_wcs/&lt;detector&gt;_&lt;version&gt;.json</code> — tabla <code>WCS-WAVE</code> reutilizable entre visitas.</li>
+  </ul>
+  <p>La clave de caché incluye posición, tamaño de campo, movimiento propio y época. La purga al arranque
+    elimina las carpetas más antiguas cuando se supera el límite configurado.</p>
+  <div class="callout warn">
+    <span class="t">Lectura incremental</span>
+    Un recorte completo pesa ≈4 MB, casi todo <code>EPSF</code>. El lector corta la conexión tras leer
+    <code>IMAGE</code> y <code>FLAGS</code>; solo descarga el archivo completo si falta la tabla WCS.
+  </div>
+</section>
+
+<!-- ========================= ENDPOINTS ========================= -->
+<section class="section">
+  <h2><span class="num">07</span>Referencia de endpoints</h2>
+  <div class="h-rule"></div>
+  <p>Todas las rutas son <code>GET</code> y devuelven JSON, excepto <code>/export-mp4</code>, que responde
+    con <code>video/mp4</code>. El frontend estático se sirve en <code>/</code>. Las coordenadas se
+    expresan en grados y el tamaño de campo <code>fov</code> en arcosegundos.</p>
+
+  <table>
+    <thead><tr><th style="width:9%">Método</th><th style="width:30%">Ruta</th><th>Propósito</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method get">GET</span></td><td><code>/targets</code></td><td>Lista de objetivos del reto con astrometría.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/cutouts</code></td><td>Frames PNG base64 de un campo en modo <code>normal</code>, <code>diff</code> o <code>stack</code>.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/stack</code></td><td>Atajo de apilado por media de un detector, con rango de longitud de onda.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/spectrum</code></td><td>Espectro de 102 valores para coordenadas libres o <code>target</code>.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/spectrum/{id}</code></td><td>Espectro de 102 valores para un objetivo con FITS locales.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/diff/{id}</code></td><td>Resta nueva−vieja de la misma banda; devuelve un PNG y metadatos del par.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/export-mp4</code></td><td>Video MP4 de la secuencia temporal en modo <code>normal</code> o <code>diff</code>.</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/gaia-check</code></td><td>Verifica si hay una fuente Gaia DR3 en el radio indicado.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Parámetros clave</h3>
+  <table>
+    <thead><tr><th style="width:16%">Parámetro</th><th style="width:20%">Rutas</th><th>Descripción y límites</th></tr></thead>
+    <tbody>
+      <tr><td><code>target</code></td><td>todas menos <code>/targets</code></td><td>Identificador de <code>targets.json</code>. Alternativo a <code>ra</code>/<code>dec</code>.</td></tr>
+      <tr><td><code>ra</code>, <code>dec</code></td><td><code>/cutouts</code>, <code>/stack</code>, <code>/spectrum</code>, <code>/export-mp4</code>, <code>/gaia-check</code></td><td>Coordenadas en grados; <code>ra ∈ [0,360)</code>, <code>dec ∈ [-90,90]</code>.</td></tr>
+      <tr><td><code>fov</code></td><td><code>/cutouts</code>, <code>/stack</code>, <code>/spectrum</code>, <code>/export-mp4</code></td><td>Tamaño del campo en arcosegundos, <code>30–300</code>; por defecto 90 (60 en espectro).</td></tr>
+      <tr><td><code>detector</code></td><td><code>/cutouts</code>, <code>/stack</code>, <code>/diff/{id}</code>, <code>/export-mp4</code></td><td>Detector SPHEREx, <code>1–6</code>.</td></tr>
+      <tr><td><code>mode</code></td><td><code>/cutouts</code>, <code>/export-mp4</code></td><td><code>normal</code>, <code>diff</code> o <code>stack</code>; en MP4 solo <code>normal</code>/<code>diff</code>.</td></tr>
+      <tr><td><code>max</code></td><td><code>/cutouts</code>, <code>/stack</code>, <code>/spectrum</code>, <code>/export-mp4</code></td><td>Número máximo de épocas, hasta <code>150</code> (por defecto 40; 120 en espectro).</td></tr>
+      <tr><td><code>sigma</code></td><td><code>/cutouts</code>, <code>/diff/{id}</code></td><td>Umbral en desviaciones MAD para considerar un cambio, <code>&gt;0</code>; por defecto 3.0.</td></tr>
+      <tr><td><code>tol</code></td><td><code>/cutouts</code>, <code>/diff/{id}</code>, <code>/export-mp4</code></td><td>Tolerancia de banda espectral en µm, <code>&gt;0</code>; por defecto 0.02.</td></tr>
+      <tr><td><code>min_dias</code></td><td><code>/cutouts</code>, <code>/diff/{id}</code>, <code>/export-mp4</code></td><td>Separación mínima entre épocas del par, en días; por defecto 1.0.</td></tr>
+      <tr><td><code>pmra</code>, <code>pmdec</code></td><td><code>/cutouts</code>, <code>/stack</code>, <code>/spectrum</code>, <code>/export-mp4</code></td><td>Movimiento propio en mas/año para coordenadas libres.</td></tr>
+      <tr><td><code>par</code></td><td><code>/diff/{id}</code></td><td>Índice del par de épocas; <code>-1</code> es el más reciente.</td></tr>
+      <tr><td><code>fps</code></td><td><code>/export-mp4</code></td><td>Cuadros por segundo; valores válidos <code>5</code> o <code>10</code>.</td></tr>
+      <tr><td><code>radius</code></td><td><code>/gaia-check</code></td><td>Radio de búsqueda en arcosegundos; por defecto 3.0.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Códigos de estado</h3>
+  <table>
+    <thead><tr><th style="width:12%">Código</th><th>Situación</th></tr></thead>
+    <tbody>
+      <tr><td><strong>400</strong></td><td>Parámetros fuera de rango o valor no admitido (modo, fps, índice de par).</td></tr>
+      <tr><td><strong>404</strong></td><td>Objetivo desconocido, ausencia de FITS locales o de pares válidos.</td></tr>
+      <tr><td><strong>422</strong></td><td>Validación automática de FastAPI (restricciones de <code>Query</code>).</td></tr>
+      <tr><td><strong>429</strong></td><td>Límite de peticiones excedido en rutas de descarga; incluye <code>Retry-After</code>.</td></tr>
+      <tr><td><strong>503</strong></td><td>IRSA o Gaia no responden tras los reintentos.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <span class="t">Forma de respuesta</span>
+    Los frames contienen <code>{mjd, wavelength, detector, flag_bits, shape, png_base64}</code>; en
+    <code>diff</code> se añade <code>mjd_vieja</code> y en <code>stack</code> los extremos
+    <code>wavelength_min</code>/<code>wavelength_max</code> y <code>n_apilados</code>. Los espectros
+    devuelven dos arreglos paralelos: <code>wavelengths[102]</code> y <code>flux[102]</code>.
+  </div>
+
+  <h3>Notas de contrato</h3>
+  <ul>
+    <li><strong>Precedencia:</strong> si se envía <code>target</code>, sus coordenadas y movimiento propio tienen prioridad sobre <code>ra</code>/<code>dec</code>.</li>
+    <li><strong>Unidades:</strong> ángulos en grados, <code>fov</code> y <code>radius</code> en arcosegundos, longitudes de onda en µm.</li>
+    <li><strong>Modo <code>diff</code>:</strong> requiere pares de la misma banda; si no existen con <code>tol</code>/<code>min_dias</code>, se responde <code>404</code>.</li>
+    <li><strong>MP4:</strong> el archivo se sirve desde un directorio temporal que se elimina al terminar la respuesta.</li>
+    <li><strong>Límite:</strong> al recibir <code>429</code>, respetar la cabecera <code>Retry-After</code> antes de reintentar.</li>
+  </ul>
+</section>
+
+<!-- ========================= DECISIONES ========================= -->
+<section class="section">
+  <h2><span class="num">08</span>Decisiones de implementación</h2>
+  <div class="h-rule"></div>
+
+  <h3>Descarga parcial de recortes</h3>
+  <p>Un recorte de IRSA incluye las extensiones <code>IMAGE</code> y <code>FLAGS</code> al inicio, seguidas
+    de datos que el servicio no necesita (PSF y tablas). El lector recorre las cabeceras, calcula el tamaño
+    de cada HDU y detiene la transferencia en cuanto reúne las extensiones requeridas. El ahorro es de
+    aproximadamente dos órdenes de magnitud por archivo.</p>
+
+  <h3>Caché y concurrencia</h3>
+  <ul>
+    <li>Un <em>lock</em> por carpeta de campo evita descargas duplicadas ante peticiones simultáneas.</li>
+    <li>Un semáforo limita las descargas simultáneas a IRSA (<code>SPHEREX_CONCURRENCIA</code>, 6 por defecto).</li>
+    <li>La escritura es atómica: se escribe a un archivo <code>.part</code> y se renombra al finalizar.</li>
+    <li>La tabla <code>WCS-WAVE</code> se comparte entre visitas mediante un lock por detector y versión.</li>
+  </ul>
+
+  <h3>Rate limiting</h3>
+  <p>El middleware aplica un <em>token bucket</em> por IP solo a <code>/cutouts</code>, <code>/stack</code>,
+    <code>/spectrum</code> y <code>/export-mp4</code>, que son las rutas capaces de disparar descargas.
+    Con <code>SPHEREX_RATE=0</code> el límite se desactiva, lo que usan las pruebas.</p>
+
+  <h3>Movimiento propio</h3>
+  <p>Para objetos con desplazamiento apreciable (p. ej. Barnard, ≈10″/año), el recorte se centra en la
+    posición del objeto <em>en la fecha de cada observación</em>, no en la posición de catálogo. Esto evita
+    que el objeto se desplace fuera del campo entre la primera y la última visita.</p>
+
+  <h3>Diferencia entre épocas</h3>
+  <p>El modo <code>diff</code> solo empareja imágenes del mismo detector y de la misma banda espectral
+    (<code>|Δλ| ≤ tol</code>). Sobre la diferencia se resta la mediana global y se anulan los valores por
+    debajo de <code>sigma × MAD</code>; los píxeles sin dato en cualquiera de las dos imágenes quedan como
+    <code>NaN</code> y no se pintan. Así la resta refleja cambio temporal y no cambio de color.</p>
+
+  <h3>Espectro de 102 bandas</h3>
+  <p>Para cada detector se recolectan los pares <code>(wavelength, flujo)</code> de las épocas, se ordenan
+    por longitud de onda y se interpolan a 17 canales. Los seis bloques se concatenan en un arreglo de 102
+    valores. La posición del muestreo se corrige por movimiento propio a la fecha de cada época.</p>
+
+  <h3>Verificación con Gaia</h3>
+  <p><code>/gaia-check</code> ejecuta una búsqueda de cono sobre Gaia DR3. La respuesta distingue
+    <code>known</code> (fuente catalogada) de <code>anomaly</code> (sin contrapartida), pero el propio
+    servicio advierte que un objeto frío o débil puede no estar en Gaia sin ser una anomalía real.</p>
+</section>
+
+<!-- ========================= OPERACIÓN ========================= -->
+<section class="section">
+  <h2><span class="num">09</span>Configuración y operación</h2>
+  <div class="h-rule"></div>
+
+  <h3>Requisitos</h3>
+  <ul>
+    <li>Python 3.12 y dependencias de <code>requirements.txt</code> (FastAPI, astropy, astroquery, numpy, Pillow, pytest, httpx).</li>
+    <li><code>ffmpeg</code> en el <code>PATH</code> solo para exportar MP4.</li>
+  </ul>
+
+  <h3>Arranque</h3>
+  <p><code>py -3.12 -m uvicorn app:app --reload --app-dir backend</code>. La interfaz se publica en
+    <code>http://127.0.0.1:8000/</code> y la documentación interactiva en <code>/docs</code>. La UI admite
+    parámetros por URL para incrustarse:
+    <code>/?ra=133.7951&amp;dec=-7.2451&amp;fov=90&amp;detector=6&amp;mode=diff</code>.</p>
+
+  <h3>Variables de entorno</h3>
+  <table>
+    <thead><tr><th style="width:28%">Variable</th><th style="width:16%">Defecto</th><th>Efecto</th></tr></thead>
+    <tbody>
+      <tr><td><code>SPHEREX_RATE</code></td><td>60</td><td>Peticiones por minuto y por IP; <code>0</code> desactiva el límite.</td></tr>
+      <tr><td><code>SPHEREX_BURST</code></td><td>20</td><td>Capacidad de ráfaga del token bucket.</td></tr>
+      <tr><td><code>SPHEREX_CONCURRENCIA</code></td><td>6</td><td>Descargas simultáneas a IRSA.</td></tr>
+      <tr><td><code>SPHEREX_CACHE_MB</code></td><td>2048</td><td>Límite de <code>data/_cache</code>; <code>0</code> desactiva la purga.</td></tr>
+      <tr><td><code>FITS_DIR</code></td><td>data/</td><td>Directorio raíz de FITS locales y caché.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Datos locales</h3>
+  <p>Para que los cinco objetivos carguen al instante:
+    <code>py -3.12 backend/descargar_fits.py [id ...]</code>. Los archivos se guardan en
+    <code>data/&lt;id&gt;/</code> y las posiciones se corrigen por movimiento propio a la fecha de cada imagen.</p>
+
+  <h3>Pruebas</h3>
+  <p><code>py -3.12 -m pytest test -q</code>. La suite simula IRSA y Gaia; las pruebas de exportación usan
+    <code>ffmpeg</code> real cuando está disponible y se omiten si no lo está.</p>
+
+  <h3>Constantes del servicio</h3>
+  <table>
+    <thead><tr><th style="width:30%">Constante</th><th style="width:16%">Valor</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td><code>FOV_MIN</code> / <code>FOV_MAX</code></td><td>30 / 300″</td><td>Rango de tamaño de campo aceptado.</td></tr>
+      <tr><td><code>MAX_EPOCAS</code></td><td>150</td><td>Tope de épocas por petición.</td></tr>
+      <tr><td><code>DESCARGAS</code></td><td>120</td><td>Recortes solicitados por campo para compartir caché entre vistas.</td></tr>
+      <tr><td><code>N_DETECTORES</code></td><td>6</td><td>Detectores de SPHEREx considerados.</td></tr>
+      <tr><td><code>N_CANALES</code></td><td>17</td><td>Canales por detector en el espectro (6 × 17 = 102).</td></tr>
+      <tr><td><code>FPS_VALIDOS</code></td><td>5 / 10</td><td>Únicos valores de <code>fps</code> admitidos en MP4.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========================= LIMITACIONES ========================= -->
+<section class="section">
+  <h2><span class="num">10</span>Limitaciones y próximos pasos</h2>
+  <div class="h-rule"></div>
+  <h3>Limitaciones conocidas</h3>
+  <ul>
+    <li><strong>Resolución:</strong> ≈6.1″/píxel. Un <code>fov</code> menor de 30″ no aporta detalle y se rechaza.</li>
+    <li><strong>Cobertura temporal:</strong> la línea de tiempo depende de las visitas de SPHEREx en la colección (≈1.4 años).</li>
+    <li><strong>Muestreo:</strong> <code>max</code> se limita a 150 épocas; el submuestreo es uniforme en el tiempo.</li>
+    <li><strong>Diferencia:</strong> solo es válida entre la misma banda; pares escasos pueden no existir para un detector.</li>
+    <li><strong>Gaia:</strong> un resultado <code>known: false</code> no implica una anomalía; objetos fríos o débiles quedan fuera del catálogo.</li>
+    <li><strong>Dependencia externa:</strong> IRSA y Gaia pueden devolver 503; el servicio reintenta y luego informa.</li>
+    <li><strong>Estado:</strong> la caché es local a la instancia; no hay coordinación entre réplicas.</li>
+  </ul>
+  <h3>Próximos pasos</h3>
+  <ul>
+    <li>Versionar y documentar el esquema de respuesta con OpenAPI enriquecido (modelos Pydantic explícitos).</li>
+    <li>Métricas de uso y observabilidad de aciertos/fallos de caché.</li>
+    <li>Almacenamiento de caché compartido (objeto o volumen) para despliegues con varias réplicas.</li>
+    <li>Cola de trabajos para exportaciones MP4 largas y limpieza programada de temporales.</li>
+  </ul>
+
+  <h3>Riesgos y mitigación</h3>
+  <table>
+    <thead><tr><th style="width:30%">Riesgo</th><th>Mitigación actual</th></tr></thead>
+    <tbody>
+      <tr><td>IRSA lento o intermitente</td><td>Reintentos con espera, concurrencia acotada y caché en disco.</td></tr>
+      <tr><td>Descargas duplicadas</td><td><em>Lock</em> por carpeta de campo y nombres de archivo deterministas.</td></tr>
+      <tr><td>Crecimiento de disco</td><td>Purga por antigüedad al arrancar según <code>SPHEREX_CACHE_MB</code>.</td></tr>
+      <tr><td>Uso abusivo de la API</td><td>Token bucket por IP en las rutas que disparan descargas.</td></tr>
+      <tr><td>Objeto fuera de campo</td><td>Corrección por movimiento propio a la fecha de cada observación.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========================= REFERENCIAS ========================= -->
+<section class="section">
+  <h2><span class="num">11</span>Referencias</h2>
+  <div class="h-rule"></div>
+  <ul class="kv">
+    <li>NASA SPHEREx — misión y documentación del instrumento.</li>
+    <li>IRSA — SPHEREx Data Release 1 (<code>spherex_dr1</code>) y Quick Release 3 (<code>spherex_qr3</code>), servicio SIA.</li>
+    <li>SPHEREx Explanatory Supplement — significado de los bits de <code>FLAGS</code> y calibración.</li>
+    <li>Gaia Collaboration — Gaia Data Release 3, catálogo astrométrico.</li>
+    <li>FastAPI y Starlette — documentación de rutas, <code>Query</code> y middleware.</li>
+    <li>Astropy — lectura FITS, WCS y coordenadas.</li>
+  </ul>
+
+  <h3>Glosario</h3>
+  <table>
+    <thead><tr><th style="width:20%">Término</th><th>Definición</th></tr></thead>
+    <tbody>
+      <tr><td><strong>RA / Dec</strong></td><td>Ascensión recta y declinación: coordenadas ecuatoriales en grados.</td></tr>
+      <tr><td><strong>MJD</strong></td><td>Modified Julian Date; fecha de la observación en días.</td></tr>
+      <tr><td><strong>FITS</strong></td><td>Formato de archivo astronómico con cabeceras y extensiones de datos.</td></tr>
+      <tr><td><strong>WCS</strong></td><td>World Coordinate System: transformación entre píxeles y coordenadas del cielo.</td></tr>
+      <tr><td><strong>SIA</strong></td><td>Simple Image Access: protocolo de consulta de imágenes en IRSA.</td></tr>
+      <tr><td><strong>MAD</strong></td><td>Desviación absoluta mediana; estimador robusto de dispersión usado en <code>diff</code>.</td></tr>
+      <tr><td><strong>Movimiento propio</strong></td><td>Desplazamiento angular anual de una fuente, en mas/año.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <span>Heliopause X · Documento técnico de API · v1.0</span>
+    <span>SPHEREx Time Viewer</span>
+  </div>
+</section>
+
+</body>
+</html>

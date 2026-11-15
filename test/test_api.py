@@ -37,7 +37,7 @@ def test_diff(cliente):
 
 
 def test_diff_indice_invalido(cliente):
-    assert cliente.get("/diff/barnard?a=999").status_code == 400
+    assert cliente.get("/diff/barnard?par=999").status_code == 400
     assert cliente.get("/diff/barnard?sigma=0").status_code == 422
 
 
@@ -65,7 +65,7 @@ def test_frames_cantidad(datos):
 
 
 def test_diff_detector_sin_datos(cliente):
-    assert cliente.get("/diff/barnard?detector=9").status_code == 400
+    assert cliente.get("/diff/barnard?detector=9").status_code == 404
 
 
 def test_diff_otro_detector(cliente):
