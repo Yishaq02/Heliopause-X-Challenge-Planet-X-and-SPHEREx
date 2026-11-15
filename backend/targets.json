@@ -1,0 +1,7 @@
+[
+  {"id": "barnard", "nombre": "Estrella de Barnard", "ra": 269.4521, "dec": 4.6934},
+  {"id": "epsilon_indi_b", "nombre": "Epsilon Indi B", "ra": 330.8404, "dec": -56.7860},
+  {"id": "objetivo3", "nombre": "TODO objetivo 3", "ra": 0.0, "dec": 0.0},
+  {"id": "objetivo4", "nombre": "TODO objetivo 4", "ra": 0.0, "dec": 0.0},
+  {"id": "objetivo5", "nombre": "TODO objetivo 5", "ra": 0.0, "dec": 0.0}
+]
