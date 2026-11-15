@@ -6,3 +6,4 @@ numpy
 pillow
 pytest
 httpx
+mcp>=2

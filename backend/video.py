@@ -9,18 +9,23 @@ from diff import diferencia, a_uint8
 from fits_engine import cargar_objetivo
 
 
+def normalizar(im):
+    """Estira el contraste al rango 0-255 por percentiles (1%-99%)."""
+    im = np.nan_to_num(im)
+    lo, hi = np.percentile(im, 1), np.percentile(im, 99)
+    return np.clip((im - lo) / (hi - lo + 1e-12) * 255, 0, 255).astype(np.uint8)
+
+
 def frames(tid, modo, sigma=3.0, detector=1):
     imgs = [e["imagen"] for e in cargar_objetivo(tid) if e["detector"] == detector]
     if len(imgs) < 2 and modo == "diff":
         raise ValueError("Se necesitan al menos 2 epocas para diferencia")
     if modo == "diff":
-        return [a_uint8(diferencia(imgs[i], imgs[i - 1], sigma)) for i in range(1, len(imgs))]
-    out = []
-    for im in imgs:
-        im = np.nan_to_num(im)
-        lo, hi = np.percentile(im, 1), np.percentile(im, 99)
-        out.append(np.clip((im - lo) / (hi - lo + 1e-12) * 255, 0, 255).astype(np.uint8))
-    return out
+        return [
+            a_uint8(diferencia(imgs[i], imgs[i - 1], sigma))
+            for i in range(1, len(imgs))
+        ]
+    return [normalizar(im) for im in imgs]
 
 
 def generar_mp4(tid, modo, fps):
@@ -36,9 +41,20 @@ def generar_mp4(tid, modo, fps):
             Image.fromarray(f[:h, :w], "L").save(tmp / f"frame_{i:03d}.png")
         salida = tmp / "salida.mp4"
         subprocess.run(
-            ["ffmpeg", "-y", "-framerate", str(fps), "-i", str(tmp / "frame_%03d.png"),
-             "-pix_fmt", "yuv420p", str(salida)],
-            check=True, capture_output=True)
+            [
+                "ffmpeg",
+                "-y",
+                "-framerate",
+                str(fps),
+                "-i",
+                str(tmp / "frame_%03d.png"),
+                "-pix_fmt",
+                "yuv420p",
+                str(salida),
+            ],
+            check=True,
+            capture_output=True,
+        )
         return salida, tmp
     except Exception:
         shutil.rmtree(tmp, ignore_errors=True)
