@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+astropy
+astroquery
+numpy
+pillow
+pytest
+httpx
